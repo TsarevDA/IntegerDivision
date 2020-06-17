@@ -6,27 +6,25 @@ import java.util.List;
 public class Divider {
 
 	public DivisionResult division(int dividend, int divisor) {
+		
+		if (divisor == 0) {
+			throw new IllegalArgumentException("Can't divide by zero");
+		}
+		
 		int numberLength = integerLength(dividend);
 		boolean isNegative = false;
 		int initialDividend = dividend;
 		int initialDivisor = divisor;
 		DivisionResult result = new DivisionResult(dividend, divisor);
 		List<Integer> answer = new ArrayList<>();
-		List<Integer> dividendDigits = new ArrayList<>();
-
-		
-		if (divisor == 0) {
-			throw new IllegalArgumentException("Can't divide by zero");
-		}
-		
+		List<Integer> dividendDigits = new ArrayList<>();		
 		dividend = Math.abs(dividend);
 		divisor = Math.abs(divisor);
-		
-		
+				
 		if (divisor > dividend) {
-			result.setSubtractionResults(0);
-			result.setMinuend(0);
-			result.setSubstrahend(0);
+			result.setSubtractionResult(0);
+			result.setMinuendNumber(0);
+			result.setSubtrahendNumber(0);
 			result.setResult(0);
 			return result;
 		}
@@ -46,28 +44,28 @@ public class Divider {
 				minuend = dividendDigits.get(dividendDigits.size() - i);
 				minuendLengthCounter++;
 			} else {
-				minuend = Integer.parseInt(
-						Integer.toString(minuend) + Integer.toString((dividendDigits.get(dividendDigits.size() - i))));
+				minuend = (int) (minuend * Math.pow(10, integerLength(dividendDigits.get((dividendDigits.size() - i))))) +
+						dividendDigits.get(dividendDigits.size() - i);
 				minuendLengthCounter++;
 			}
 
 			if (divisor <= minuend) {
-				result.setMinuend(minuend);
+				result.setMinuendNumber(minuend);
 				subtrahend = (minuend / divisor) * divisor;
 				substractionResult = minuend - subtrahend;
 				if (answer.size() != 0) {
 					while (minuendLengthCounter > 1) {
 						minuendLengthCounter--;
 						answer.add(0);
-						result.setSubstrahend(0);
+						result.setSubtrahendNumber(0);
 					}
 				}
 				answer.add(minuend / divisor);
 				minuendLengthCounter = 0;
 				minuend = substractionResult;
 
-				result.setSubstrahend(subtrahend);
-				result.setSubtractionResults(substractionResult);
+				result.setSubtrahendNumber(subtrahend);
+				result.setSubtractionResult(substractionResult);
 
 			}
 		}
@@ -77,12 +75,9 @@ public class Divider {
 			answer.add(0);
 		}
 
-		
-
 		if ((initialDividend < 0 && initialDivisor > 0) || initialDividend > 0 && initialDivisor < 0) {
 			isNegative = true;
 		}
-
 		
 		result.setResult(resultCreate(answer, isNegative));
 		return result;
@@ -92,7 +87,7 @@ public class Divider {
 		number = Math.abs(number);
 		int numberLength = 0;
 		if (number == 0) {
-			return 0;
+			return 1;
 		}
 		while (number > 0) {
 			numberLength++;
