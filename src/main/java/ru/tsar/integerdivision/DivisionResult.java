@@ -1,12 +1,15 @@
 package ru.tsar.integerdivision;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DivisionResult {
+	
 	private int dividend;
 	private int divisor;
 	private int result;
-	private DivisionSteps steps;
+	private List<DivisionStep> steps ;
+
 	
 
 
@@ -14,7 +17,7 @@ public class DivisionResult {
 		this.dividend = dividend;
 		this.divisor = divisor;
 		this.result = result;
-		steps = new DivisionSteps();
+		steps = new ArrayList<>();
 
 	}
 
@@ -22,7 +25,7 @@ public class DivisionResult {
 		this.dividend = dividend;
 		this.divisor = divisor;
 		this.result = 0;
-		steps = new DivisionSteps();
+		steps = new ArrayList<>();
 
 	}
 	
@@ -38,7 +41,7 @@ public class DivisionResult {
 		return dividend;
 	}
 	
-	public DivisionSteps getSteps() {
+	public List<DivisionStep> getSteps() {
 		return steps;
 	}
 	
@@ -46,27 +49,11 @@ public class DivisionResult {
 		this.result = result;
 	}
 		
-	public void setMinuendNumber(int minuendNumber) {
-		steps.setMinuendNumber(minuendNumber);
+	public void setSteps(DivisionStep step) {
+		this.steps.add(step);
 	}
-
-	public void setSubtractionResult (int substractionResult) {
-		steps.setSubstractionResult(substractionResult);
+	public void setSteps(int minuend, int subtrahend, int subtraction) {
+		DivisionStep step = new DivisionStep(minuend,subtrahend,subtraction);
+		this.steps.add(step);
 	}
-
-	public void setSubtrahendNumber(int subtrahendNumber) {
-		steps.setSubtrahendNumber(subtrahendNumber);
-	}
-	
-	public List<Integer> getMinuedNumbers() {
-		return steps.getMinuendNumber();
-	}
-	
-	public List<Integer> getSubtractionResults(){
-		return steps.getSubstractionResult();
-	}
-	public List<Integer> getSubtrahendNumber(){
-		return steps.getSubtrahendNumber();
-	}
-
 }

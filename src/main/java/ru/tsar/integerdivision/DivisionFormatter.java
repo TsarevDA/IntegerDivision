@@ -4,44 +4,66 @@ import java.util.List;
 
 public class DivisionFormatter {
 
-	public String format(DivisionResult result) {
-		if (result == null) {
+	public String format(DivisionResult divisionResult) {
+		if (divisionResult == null) {
 			throw new IllegalArgumentException("result can't be null");
 		}
-		if (result.getMinuedNumbers().isEmpty() || result.getSubtractionResults().isEmpty()
-				|| result.getSubtrahendNumber().isEmpty()) {
+		if (divisionResult.getSteps().isEmpty()) {
 			throw new IllegalArgumentException("division steps can't be empty");
 		}
-		int dividend = result.getDividend();
-		int divisor = result.getDivisor();
-		String resultString = Integer.toString(result.getResult());
+		int dividend = divisionResult.getDividend();
+		int divisor = divisionResult.getDivisor();
+		List<DivisionStep> steps = divisionResult.getSteps();
+		StringBuilder outString = new StringBuilder();
+		outString.append(init(dividend, divisor, steps.get(0).getMinuend(), steps.get(0).getSubtrahend(),
+				Integer.toString(divisionResult.getResult())));
+		StringBuilder shift = new StringBuilder();
+		shift.append(" ");
+		for (int i = 1; i < steps.size(); i++) {
+			int shiftCount = 0;
+			while (steps.get(i).getSubtrahend() == 0) {
+				shiftCount++;
+				steps.remove(i);
 
-		List<Integer> minuendNumbers = result.getMinuedNumbers();
-		List<Integer> subtrahendNumbers = result.getSubtrahendNumber();
-		List<Integer> subtractionResults = result.getSubtractionResults();
+			}
+			System.out.println(steps.get(i - 1).getMinuend());
+			System.out.println(steps.get(i - 1).getSubtraction());
+			shift.append(
+					shiftDivisionResults(steps.get(i - 1).getMinuend(), steps.get(i - 1).getSubtraction(), shiftCount));
+			outString.append(System.lineSeparator() + shift.substring(1) + "_" + steps.get(i).getMinuend());
+			outString.append(System.lineSeparator() + shift + steps.get(i).getSubtrahend());
+			StringBuilder streak = new StringBuilder();
+			
+			for (int k = 0; k < Divider.getIntegerLength(steps.get(i).getSubtrahend()); k++) {
+				streak.append("-");
+			}
+			outString.append(System.lineSeparator() + shift + streak);
+		}
+
+		shift.insert(0, insertSpace(Divider.getIntegerLength(steps.get(steps.size() - 1).getMinuend())
+				- Divider.getIntegerLength(steps.get(steps.size() - 1).getSubtraction())));
+
+		outString.append(System.lineSeparator() + shift);
+		outString.append(steps.get(steps.size() - 1).getSubtraction());
+
+		return outString.toString();
+	}
+
+	public StringBuilder init(int dividend, int divisor, int minuend, int subtrahend, String resultString) {
+		boolean negativeNumber = (dividend < 0) ? true : false;
+		int numberLength = Divider.getIntegerLength(dividend);
 		StringBuilder outString = new StringBuilder();
 
-		boolean negativeNumber = (dividend < 0) ? true : false;
-
-		int numberLength = Divider.integerLength(dividend);
 		outString.append("_" + dividend + "|" + divisor + System.lineSeparator());
 		if (negativeNumber) {
 			outString.append(" ");
 		}
-		int secondLineShift = 0;
 
-		while ((Divider.integerLength(minuendNumbers.get(0))
-				- Divider.integerLength(subtrahendNumbers.get(0))) > secondLineShift) {
-			outString.append(" ");
-			secondLineShift++;
-
-		}
-		outString.append(" " + subtrahendNumbers.get(0));
-
-		for (int i = 0; i < numberLength - Divider.integerLength(subtrahendNumbers.get(0)) - secondLineShift; i++) {
-			outString.append(" ");
-		}
+		outString.append(insertSpace(Divider.getIntegerLength(minuend) - Divider.getIntegerLength(subtrahend)));
+		outString.append(" " + subtrahend);
+		outString.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
 		outString.append("|");
+
 		for (int i = 0; i < resultString.length(); i++) {
 			outString.append("-");
 		}
@@ -50,73 +72,34 @@ public class DivisionFormatter {
 			outString.append(" ");
 		}
 
-		for (int i = 0; i < Divider.integerLength(subtrahendNumbers.get(0)) + secondLineShift; i++) {
+		for (int i = 0; i < Divider.getIntegerLength(subtrahend); i++) {
 			outString.append("-");
 		}
 
-		for (int i = 0; i < numberLength - Divider.integerLength(subtrahendNumbers.get(0)) - secondLineShift; i++) {
-			outString.append(" ");
-		}
-
+		outString.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
 		outString.append("|" + resultString);
+
+		return outString;
+	}
+
+	public static StringBuilder insertSpace(int spaceAmount) {
 		StringBuilder shift = new StringBuilder();
-		StringBuilder shiftBuffer = new StringBuilder();
-		int shiftBufferLength = 0;
-		shift.insert(0, "_");
+		for (int i = 0; i < spaceAmount; i++) {
+			shift.append(" ");
+		}
+		return shift;
+	}
 
-		for (int i = 1; i < minuendNumbers.size(); i++) {
-			while (subtrahendNumbers.get(i).equals(0)) {
-				shift.insert(0, " ");
-				subtrahendNumbers.remove(i);
-			}
-
-			int substractionResultsLength = Divider.integerLength(subtractionResults.get(i - 1));
-
-			while ((Divider.integerLength(minuendNumbers.get(i - 1)) - substractionResultsLength) > 0) {
-				shift.insert(0, " ");
-				substractionResultsLength++;
-			}
-
-			shiftBuffer.append(shift);
-			shiftBuffer.append(minuendNumbers.get(i));
-			outString.append(System.lineSeparator() + shiftBuffer);
-			shiftBufferLength = shiftBuffer.length();
-			shiftBuffer.delete(0, shiftBuffer.length());
-
-			for (int j = 0; j < shiftBufferLength - Divider.integerLength(subtrahendNumbers.get(i)); j++) {
-				shiftBuffer.append(" ");
-			}
-
-			shiftBuffer.append(subtrahendNumbers.get(i));
-			outString.append(System.lineSeparator() + shiftBuffer);
-			shiftBufferLength = shiftBuffer.length();
-			shiftBuffer.delete(0, shiftBuffer.length());
-
-			for (int j = 0; j < shiftBufferLength - Divider.integerLength(subtrahendNumbers.get(i)); j++) {
-				shiftBuffer.append(" ");
-			}
-			shiftBufferLength = shiftBuffer.length();
-
-			for (int k = 0; k < Divider.integerLength(subtrahendNumbers.get(i)); k++) {
-				shiftBuffer.append("-");
-			}
-
-			outString.append(System.lineSeparator() + shiftBuffer);
-			shiftBuffer.delete(0, shiftBuffer.length());
+	public StringBuilder shiftDivisionResults(int minuend, int subtraction, int shiftCouner) {
+		StringBuilder shift = new StringBuilder();
+		shift.append(insertSpace(shiftCouner-1));
+		if (subtraction == 0) {
+			shift.append(insertSpace(Divider.getIntegerLength(minuend)));
+		} else {
+			shift.append(insertSpace(Divider.getIntegerLength(minuend) - Divider.getIntegerLength(subtraction)));
 		}
 
-		for (int i = 0; i < shiftBufferLength; i++) {
-			shiftBuffer.append(" ");
-		}
-		int substractionResultsLength = Divider.integerLength(subtractionResults.get(subtractionResults.size() - 1));
-
-		while ((Divider.integerLength(minuendNumbers.get(minuendNumbers.size() - 1)) - substractionResultsLength) > 0) {
-			shiftBuffer.insert(0, " ");
-			substractionResultsLength++;
-		}
-		outString.append(System.lineSeparator() + shiftBuffer);
-		outString.append(subtractionResults.get(subtractionResults.size() - 1));
-		return outString.toString();
+		return shift;
 	}
 
 }
