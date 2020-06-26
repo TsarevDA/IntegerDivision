@@ -1,5 +1,6 @@
 package ru.tsar.integerdivision;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DivisionFormatter {
@@ -14,72 +15,80 @@ public class DivisionFormatter {
 		int dividend = divisionResult.getDividend();
 		int divisor = divisionResult.getDivisor();
 		List<DivisionStep> steps = divisionResult.getSteps();
-		StringBuilder outString = new StringBuilder();
-		outString.append(init(dividend, divisor, steps.get(0).getMinuend(), steps.get(0).getSubtrahend(),
+		StringBuilder formattedResult = new StringBuilder();
+		formattedResult.append(init(dividend, divisor, steps.get(0).getMinuend(), steps.get(0).getSubtrahend(),
 				Integer.toString(divisionResult.getResult())));
 		StringBuilder shift = new StringBuilder();
 		shift.append(" ");
-		for (int i = 1; i < steps.size(); i++) {
-			int shiftCount = 0;
-			while (steps.get(i).getSubtrahend() == 0) {
-				shiftCount++;
-				steps.remove(i);
+		int shiftCount = 0;
+		List<Integer> resultDigits = new ArrayList<>();
+		resultDigits = Divider.converNumberToDigists(divisionResult.getResult());
 
-			}
-			System.out.println(steps.get(i - 1).getMinuend());
-			System.out.println(steps.get(i - 1).getSubtraction());
+		for (int i = 1; i < Divider.getIntegerLength(divisionResult.getResult()); i++) {
+			if (resultDigits.get(i)==0) {
+				shiftCount++;
+			}  else  {
 			shift.append(
-					shiftDivisionResults(steps.get(i - 1).getMinuend(), steps.get(i - 1).getSubtraction(), shiftCount));
-			outString.append(System.lineSeparator() + shift.substring(1) + "_" + steps.get(i).getMinuend());
-			outString.append(System.lineSeparator() + shift + steps.get(i).getSubtrahend());
+					shiftDivisionResults(steps.get(i - 1-shiftCount).getMinuend(), steps.get(i - 1-shiftCount).getSubtraction(), shiftCount));
+			formattedResult.append(System.lineSeparator() + shift.substring(1) + "_" + steps.get(i-shiftCount).getMinuend());
+
 			StringBuilder streak = new StringBuilder();
 			
-			for (int k = 0; k < Divider.getIntegerLength(steps.get(i).getSubtrahend()); k++) {
+			for (int k = 0; k < Divider.getIntegerLength(steps.get(i-shiftCount).getSubtrahend()); k++) {
 				streak.append("-");
 			}
-			outString.append(System.lineSeparator() + shift + streak);
+			if (Divider.getIntegerLength(steps.get(i-shiftCount).getMinuend())>Divider.getIntegerLength(steps.get(i-shiftCount).getSubtrahend())) {
+				formattedResult.append(System.lineSeparator() + shift + " "+ steps.get(i-shiftCount).getSubtrahend());
+				formattedResult.append(System.lineSeparator() + shift + " "+ streak);
+			} else {
+			formattedResult.append(System.lineSeparator() + shift + steps.get(i-shiftCount).getSubtrahend());
+			formattedResult.append(System.lineSeparator() + shift + streak);
+			}
+			
+			}
+	
 		}
 
 		shift.insert(0, insertSpace(Divider.getIntegerLength(steps.get(steps.size() - 1).getMinuend())
 				- Divider.getIntegerLength(steps.get(steps.size() - 1).getSubtraction())));
 
-		outString.append(System.lineSeparator() + shift);
-		outString.append(steps.get(steps.size() - 1).getSubtraction());
+		formattedResult.append(System.lineSeparator() + shift);
+		formattedResult.append(steps.get(steps.size() - 1).getSubtraction());
 
-		return outString.toString();
+		return formattedResult.toString();
 	}
 
 	public StringBuilder init(int dividend, int divisor, int minuend, int subtrahend, String resultString) {
 		boolean negativeNumber = (dividend < 0) ? true : false;
 		int numberLength = Divider.getIntegerLength(dividend);
-		StringBuilder outString = new StringBuilder();
+		StringBuilder formattedResult = new StringBuilder();
 
-		outString.append("_" + dividend + "|" + divisor + System.lineSeparator());
+		formattedResult.append("_" + dividend + "|" + divisor + System.lineSeparator());
 		if (negativeNumber) {
-			outString.append(" ");
+			formattedResult.append(" ");
 		}
 
-		outString.append(insertSpace(Divider.getIntegerLength(minuend) - Divider.getIntegerLength(subtrahend)));
-		outString.append(" " + subtrahend);
-		outString.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
-		outString.append("|");
+		formattedResult.append(insertSpace(Divider.getIntegerLength(minuend) - Divider.getIntegerLength(subtrahend)));
+		formattedResult.append(" " + subtrahend);
+		formattedResult.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
+		formattedResult.append("|");
 
 		for (int i = 0; i < resultString.length(); i++) {
-			outString.append("-");
+			formattedResult.append("-");
 		}
-		outString.append(System.lineSeparator() + " ");
+		formattedResult.append(System.lineSeparator() + " ");
 		if (negativeNumber) {
-			outString.append(" ");
+			formattedResult.append(" ");
 		}
 
 		for (int i = 0; i < Divider.getIntegerLength(subtrahend); i++) {
-			outString.append("-");
+			formattedResult.append("-");
 		}
 
-		outString.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
-		outString.append("|" + resultString);
+		formattedResult.append(insertSpace(numberLength - Divider.getIntegerLength(subtrahend)));
+		formattedResult.append("|" + resultString);
 
-		return outString;
+		return formattedResult;
 	}
 
 	public static StringBuilder insertSpace(int spaceAmount) {

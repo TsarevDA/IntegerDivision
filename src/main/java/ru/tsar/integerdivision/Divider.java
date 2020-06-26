@@ -14,7 +14,6 @@ public class Divider {
 		int initialDividend = dividend;
 		int initialDivisor = divisor;
 		DivisionResult result = new DivisionResult(dividend, divisor);
-		List<Integer> dividendDigits = new ArrayList<>();
 		dividend = Math.abs(dividend);
 		divisor = Math.abs(divisor);
 
@@ -24,53 +23,47 @@ public class Divider {
 			return result;
 		}
 
-		dividendDigits = convertNumberToDigists(dividend);
+		List<Integer> dividendDigits = new ArrayList<>(converNumberToDigists(dividend));
 		int minuend = 0;
 		int subtractionResult = 0;
-		int minuendLengthCounter = 0;
+		boolean setZeroToResult = false;
 		int subtrahend = 0;
-
-		for (int i = 1; i < dividendDigits.size() + 1; i++) {
+		for (int i = 0; i < dividendDigits.size(); i++) {
 			if (minuend == 0) {
-				minuend = dividendDigits.get(dividendDigits.size() - i);
-				minuendLengthCounter++;
+				minuend = dividendDigits.get(i);
+				if (result.getResult() != 0) {
+					result.setResult(result.getResult() * 10);
+				}
 			} else {
-				minuend = (int) (minuend
-						* Math.pow(10, getIntegerLength(dividendDigits.get((dividendDigits.size() - i)))))
-						+ dividendDigits.get(dividendDigits.size() - i);
-				minuendLengthCounter++;
+				minuend = (int) (minuend * Math.pow(10, getIntegerLength(dividendDigits.get(i))))
+						+ dividendDigits.get(i);
+				if (result.getResult() != 0) {
+					if (setZeroToResult) {
+						result.setResult(result.getResult() * 10);
+					}
+				}
+				setZeroToResult = true;
 			}
 
 			if (divisor <= minuend) {
 				subtrahend = (minuend / divisor) * divisor;
 				subtractionResult = minuend - subtrahend;
-				if (result.getResult() !=0) {
-					while (minuendLengthCounter > 1) {
-						minuendLengthCounter--;
-						result.setResult(result.getResult()*10);
-						result.setSteps(0, 0, 0);
-					}
-				}
 				result.setSteps(minuend, subtrahend, subtractionResult);
-				result.setResult(result.getResult()*10+minuend / divisor);
-				minuendLengthCounter = 0;
+				result.setResult(result.getResult() * 10 + minuend / divisor);
+				setZeroToResult = false;
 				minuend = subtractionResult;
 			}
 		}
-
-		while (minuendLengthCounter > 0) {
-			minuendLengthCounter--;
-			result.setResult(result.getResult()*10);
-		}
+		result.setRemainder(subtractionResult);
 
 		if ((initialDividend < 0 && initialDivisor > 0) || initialDividend > 0 && initialDivisor < 0) {
-			result.setResult(result.getResult()*(-1));
+			result.setResult(result.getResult() * (-1));
 		}
 		return result;
 	}
 
 	public static int getIntegerLength(int number) {
-		
+
 		number = Math.abs(number);
 		int numberLength = 0;
 		if (number == 0) {
@@ -83,11 +76,11 @@ public class Divider {
 		return numberLength;
 	}
 
-	public static List<Integer> convertNumberToDigists(int number) {
-		
+	public static List<Integer> converNumberToDigists(int number) {
+
 		List<Integer> digits = new ArrayList<>();
 		for (int i = getIntegerLength(number); i > 0; i--) {
-			digits.add(number % 10);
+			digits.add(0, number % 10);
 			number /= 10;
 		}
 		return digits;
